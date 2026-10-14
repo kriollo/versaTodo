@@ -1,0 +1,28 @@
+# Un PR semanal por ecosistema con todas las actualizaciones agrupadas.
+# Incluye versawys/kernel: cada versión nueva del kernel llega como PR con la CI corrida.
+version: 2
+updates:
+    - package-ecosystem: composer
+      directory: /
+      schedule:
+          interval: weekly
+      groups:
+          php:
+              patterns: ['*']
+
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+      ignore:
+          # Tailwind 4 cambia el formato de configuración: es una migración del panel, no una actualización
+          - dependency-name: tailwindcss
+            update-types: ['version-update:semver-major']
+      groups:
+          frontend:
+              patterns: ['*']
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: monthly

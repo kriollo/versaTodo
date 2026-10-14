@@ -1,0 +1,26 @@
+<footer
+    class="w-full flex-shrink-0 p-6 bg-white border-t border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 transition-colors duration-200">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+            ©
+            {{ 'now'|date('Y') }}
+            <a
+                href="{{ getPanelUrl('admin') }}"
+                data-spa
+                class="hover:text-black dark:hover:text-white transition-colors font-medium">
+                VersaWYS™
+            </a>. Todos los derechos reservados.
+        </span>
+        <ul class="flex flex-wrap items-center text-sm font-medium text-gray-500 dark:text-gray-400 gap-6">
+            <li><a href="#" class="hover:text-black dark:hover:text-brand transition-colors">Acerca de</a></li>
+            <li>
+                <a
+                    href="http://www.wys.cl/"
+                    target="_blank"
+                    class="hover:text-black dark:hover:text-brand transition-colors">
+                    Contacto
+                </a>
+            </li>
+        </ul>
+    </div>
+</footer>
