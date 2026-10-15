@@ -11,15 +11,13 @@ class TablerosController extends GlobalControllers
 {
     private const array NO_ENCONTRADO = ['success' => 0, 'message' => 'No encontrado', 'code' => 404];
 
-    private Tableros $modelo;
-
     private int $idEmpresa;
 
-    public function __construct()
+    // El contenedor crea el modelo; en una prueba se puede reemplazar por otro
+    public function __construct(private readonly Tableros $modelo)
     {
         global $twig, $session;
         parent::__construct($twig, $session);
-        $this->modelo = new Tableros();
         $this->idEmpresa = (int) ($this->empresaSelected['id'] ?? 0);
     }
 
@@ -37,9 +35,9 @@ class TablerosController extends GlobalControllers
         return ['success' => 1, 'data' => $this->modelo->listar($this->idEmpresa)];
     }
 
-    public function ver(string $id): array
+    public function ver(int $id): array
     {
-        $tablero = $this->modelo->buscar((int) $id, $this->idEmpresa);
+        $tablero = $this->modelo->buscar($id, $this->idEmpresa);
         if ($tablero === null) {
             return self::NO_ENCONTRADO;
         }
@@ -47,8 +45,8 @@ class TablerosController extends GlobalControllers
         return [
             'success' => 1,
             'tablero' => $tablero,
-            'tareas' => $this->modelo->tareas((int) $id),
-            'etiquetas' => $this->modelo->etiquetas((int) $id),
+            'tareas' => $this->modelo->tareas($id),
+            'etiquetas' => $this->modelo->etiquetas($id),
             'miembros' => $this->modelo->miembros($this->idEmpresa),
         ];
     }
@@ -62,37 +60,37 @@ class TablerosController extends GlobalControllers
         return ['success' => 1, 'message' => 'Tablero creado', 'id' => $id, 'code' => 201];
     }
 
-    public function editar(string $id): array
+    public function editar(int $id): array
     {
         global $request;
 
-        if ($this->modelo->buscar((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $this->modelo->guardar($this->idEmpresa, $request->getAllParams(), (int) $id);
+        $this->modelo->guardar($this->idEmpresa, $request->getAllParams(), $id);
 
         return ['success' => 1, 'message' => 'Tablero actualizado'];
     }
 
-    public function eliminar(string $id): array
+    public function eliminar(int $id): array
     {
-        if ($this->modelo->buscar((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $this->modelo->eliminar((int) $id, $this->idEmpresa);
+        $this->modelo->eliminar($id, $this->idEmpresa);
 
         return ['success' => 1, 'message' => 'Tablero eliminado'];
     }
 
     // ---------- Tareas ----------
 
-    public function crearTarea(string $id): array
+    public function crearTarea(int $id): array
     {
         global $request;
 
-        if ($this->modelo->buscar((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
@@ -101,16 +99,16 @@ class TablerosController extends GlobalControllers
             return $this->responsableInvalido();
         }
 
-        $idTarea = $this->modelo->guardarTarea((int) $id, $datos);
+        $idTarea = $this->modelo->guardarTarea($id, $datos);
 
         return ['success' => 1, 'message' => 'Tarea creada', 'id' => $idTarea, 'code' => 201];
     }
 
-    public function editarTarea(string $id): array
+    public function editarTarea(int $id): array
     {
         global $request;
 
-        $tarea = $this->modelo->tarea((int) $id, $this->idEmpresa);
+        $tarea = $this->modelo->tarea($id, $this->idEmpresa);
         if ($tarea === null) {
             return self::NO_ENCONTRADO;
         }
@@ -120,16 +118,16 @@ class TablerosController extends GlobalControllers
             return $this->responsableInvalido();
         }
 
-        $this->modelo->guardarTarea((int) $tarea['id_tablero'], $datos, (int) $id);
+        $this->modelo->guardarTarea((int) $tarea['id_tablero'], $datos, $id);
 
         return ['success' => 1, 'message' => 'Tarea actualizada'];
     }
 
-    public function moverTarea(string $id): array
+    public function moverTarea(int $id): array
     {
         global $request;
 
-        $tarea = $this->modelo->tarea((int) $id, $this->idEmpresa);
+        $tarea = $this->modelo->tarea($id, $this->idEmpresa);
         if ($tarea === null) {
             return self::NO_ENCONTRADO;
         }
@@ -137,45 +135,45 @@ class TablerosController extends GlobalControllers
         $orden = $request->get('orden');
         $orden = is_string($orden) ? json_decode($orden, true) : $orden;
 
-        $this->modelo->moverTarea((int) $id, (int) $tarea['id_tablero'], (string) $request->get('columna'), (array) $orden);
+        $this->modelo->moverTarea($id, (int) $tarea['id_tablero'], (string) $request->get('columna'), (array) $orden);
 
         return ['success' => 1];
     }
 
-    public function eliminarTarea(string $id): array
+    public function eliminarTarea(int $id): array
     {
-        if ($this->modelo->tarea((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->tarea($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $this->modelo->eliminarTarea((int) $id);
+        $this->modelo->eliminarTarea($id);
 
         return ['success' => 1, 'message' => 'Tarea eliminada'];
     }
 
     // ---------- Etiquetas ----------
 
-    public function crearEtiqueta(string $id): array
+    public function crearEtiqueta(int $id): array
     {
         global $request;
 
-        if ($this->modelo->buscar((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
         $nombre = trim((string) $request->get('nombre'));
-        if ($this->modelo->existeEtiqueta((int) $id, $nombre)) {
+        if ($this->modelo->existeEtiqueta($id, $nombre)) {
             return ['success' => 0, 'message' => 'Ya existe una etiqueta con ese nombre', 'errors' => ['nombre' => 'Repetida'], 'code' => 422];
         }
 
-        $idEtiqueta = $this->modelo->crearEtiqueta((int) $id, $nombre, (string) ($request->get('color') ?: '#64748b'));
+        $idEtiqueta = $this->modelo->crearEtiqueta($id, $nombre, (string) ($request->get('color') ?: '#64748b'));
 
         return ['success' => 1, 'message' => 'Etiqueta creada', 'id' => $idEtiqueta, 'code' => 201];
     }
 
-    public function eliminarEtiqueta(string $id): array
+    public function eliminarEtiqueta(int $id): array
     {
-        if (!$this->modelo->eliminarEtiqueta((int) $id, $this->idEmpresa)) {
+        if (!$this->modelo->eliminarEtiqueta($id, $this->idEmpresa)) {
             return self::NO_ENCONTRADO;
         }
 
@@ -184,31 +182,31 @@ class TablerosController extends GlobalControllers
 
     // ---------- Notas ----------
 
-    public function notas(string $id): array
+    public function notas(int $id): array
     {
-        if ($this->modelo->tarea((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->tarea($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        return ['success' => 1, 'data' => $this->modelo->notas((int) $id)];
+        return ['success' => 1, 'data' => $this->modelo->notas($id)];
     }
 
-    public function crearNota(string $id): array
+    public function crearNota(int $id): array
     {
         global $request;
 
-        if ($this->modelo->tarea((int) $id, $this->idEmpresa) === null) {
+        if ($this->modelo->tarea($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $idNota = $this->modelo->crearNota((int) $id, $this->id_user, trim((string) $request->get('contenido')));
+        $idNota = $this->modelo->crearNota($id, $this->id_user, trim((string) $request->get('contenido')));
 
         return ['success' => 1, 'message' => 'Nota agregada', 'id' => $idNota, 'code' => 201];
     }
 
-    public function eliminarNota(string $id): array
+    public function eliminarNota(int $id): array
     {
-        if (!$this->modelo->eliminarNota((int) $id, $this->id_user)) {
+        if (!$this->modelo->eliminarNota($id, $this->id_user)) {
             return self::NO_ENCONTRADO;
         }
 
@@ -221,7 +219,7 @@ class TablerosController extends GlobalControllers
             return true;
         }
 
-        return in_array((int) $idUsuario, array_map(intval(...), array_column($this->modelo->miembros($this->idEmpresa), 'id')), true);
+        return in_array($idUsuario, array_map(intval(...), array_column($this->modelo->miembros($this->idEmpresa), 'id')), true);
     }
 
     private function responsableInvalido(): array

@@ -156,6 +156,10 @@ describe('Tableros', function (): void {
         $admin->deleteJson(API . "/notas/{$nota}")->assertOk();
     });
 
+    it('un id que no es número en la ruta responde 404 (int $id en el controlador)', function (): void {
+        como('admin@todo.test')->getJson(API . '/tableros/abc')->assertStatus(404);
+    });
+
     it('la pantalla exige el módulo en el perfil del usuario', function (): void {
         como('ana@todo.test')->get('/admin/tableros')->assertRedirect('/e404');
 
