@@ -32,24 +32,24 @@
     const abierto = ref<number | null>(Number(new URLSearchParams(location.search).get('t')) || null);
     watch(abierto, id => {
         const url = new URL(location.href);
-        if (id) url.searchParams.set('t', String(id));
-        else url.searchParams.delete('t');
+        if (id) {url.searchParams.set('t', String(id));}
+        else {url.searchParams.delete('t');}
         history.replaceState(history.state, '', url);
-        if (!id) cargar();
+        if (!id) {cargar();}
     });
 
     const cargar = async () => {
         const res = await api('GET', '/tableros');
         cargando.value = false;
-        if (res.success) tableros.value = res.data;
+        if (res.success) {tableros.value = res.data;}
     };
     onMounted(() => {
-        if (!abierto.value) cargar();
+        if (!abierto.value) {cargar();}
     });
 
     const crear = async () => {
         const res = await api('POST', '/tableros', { ...nuevo });
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         VersaToast.fire({ icon: 'success', title: 'Tablero creado' });
         nuevo.nombre = '';
         nuevo.descripcion = '';
@@ -57,9 +57,9 @@
     };
 
     const eliminar = async (t: Tablero) => {
-        if (!(await confirmar(`¿Eliminar "${t.nombre}" y sus ${t.total} tareas?`))) return;
+        if (!(await confirmar(`¿Eliminar "${t.nombre}" y sus ${t.total} tareas?`))) {return;}
         const res = await api('DELETE', `/tableros/${t.id}`);
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         await cargar();
     };
 

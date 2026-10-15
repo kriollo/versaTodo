@@ -3,7 +3,15 @@
 
     import modal from '@/dashboard/js/components/modal.vue';
     import { showErrorResponse, VersaToast } from '@/dashboard/js/functions';
-    import { api, confirmar, type Etiqueta, type Miembro, type Nota, PRIORIDADES, type Tarea } from '@/dashboard/js/tableros/api';
+    import {
+        api,
+        confirmar,
+        type Etiqueta,
+        type Miembro,
+        type Nota,
+        PRIORIDADES,
+        type Tarea,
+    } from '@/dashboard/js/tableros/api';
 
     const props = defineProps<{ tarea: Tarea; etiquetas: Etiqueta[]; miembros: Miembro[] }>();
     const emit = defineEmits<{ cerrar: []; cambio: [] }>();
@@ -24,7 +32,7 @@
 
     const cargarNotas = async () => {
         const res = await api('GET', `/tareas/${props.tarea.id}/notas`);
-        if (res.success) notas.value = res.data;
+        if (res.success) {notas.value = res.data;}
     };
     onMounted(cargarNotas);
 
@@ -32,24 +40,24 @@
         guardando.value = true;
         const res = await api('PUT', `/tareas/${props.tarea.id}`, { ...form });
         guardando.value = false;
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         VersaToast.fire({ icon: 'success', title: 'Tarea guardada' });
         emit('cambio');
         emit('cerrar');
     };
 
     const eliminar = async () => {
-        if (!(await confirmar(`¿Eliminar la tarea "${props.tarea.titulo}"?`))) return;
+        if (!(await confirmar(`¿Eliminar la tarea "${props.tarea.titulo}"?`))) {return;}
         const res = await api('DELETE', `/tareas/${props.tarea.id}`);
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         emit('cambio');
         emit('cerrar');
     };
 
     const agregarNota = async () => {
-        if (nuevaNota.value.trim() === '') return;
+        if (nuevaNota.value.trim() === '') {return;}
         const res = await api('POST', `/tareas/${props.tarea.id}/notas`, { contenido: nuevaNota.value });
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         nuevaNota.value = '';
         await cargarNotas();
         emit('cambio');
@@ -57,19 +65,19 @@
 
     const eliminarNota = async (nota: Nota) => {
         const res = await api('DELETE', `/notas/${nota.id}`);
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         await cargarNotas();
         emit('cambio');
     };
 
     const alternarEtiqueta = (id: number) => {
         const i = form.etiquetas.indexOf(id);
-        if (i === -1) form.etiquetas.push(id);
-        else form.etiquetas.splice(i, 1);
+        if (i === -1) {form.etiquetas.push(id);}
+        else {form.etiquetas.splice(i, 1);}
     };
 
     const accion = (e: { accion: string }) => {
-        if (e.accion === 'closeModal') emit('cerrar');
+        if (e.accion === 'closeModal') {emit('cerrar');}
     };
 
     const campo =
@@ -118,7 +126,11 @@
                             :key="e.id"
                             type="button"
                             class="rounded-full px-3 py-1 text-xs font-medium text-white transition"
-                            :class="form.etiquetas.includes(e.id) ? 'ring-2 ring-offset-1 ring-gray-900 dark:ring-white' : 'opacity-40'"
+                            :class="
+                                form.etiquetas.includes(e.id)
+                                    ? 'ring-2 ring-offset-1 ring-gray-900 dark:ring-white'
+                                    : 'opacity-40'
+                            "
                             :style="{ backgroundColor: e.color }"
                             :aria-pressed="form.etiquetas.includes(e.id)"
                             @click="alternarEtiqueta(e.id)">
@@ -147,7 +159,9 @@
                 </ul>
                 <form class="flex gap-2" @submit.prevent="agregarNota">
                     <input v-model="nuevaNota" :class="campo" placeholder="Escribe una nota…" maxlength="5000" />
-                    <button type="submit" class="rounded-lg bg-gray-800 px-3 text-sm text-white hover:bg-gray-900 dark:bg-gray-600">
+                    <button
+                        type="submit"
+                        class="rounded-lg bg-gray-800 px-3 text-sm text-white hover:bg-gray-900 dark:bg-gray-600">
                         Agregar
                     </button>
                 </form>
@@ -155,7 +169,10 @@
         </template>
         <template #modalFooter>
             <div class="flex w-full justify-between">
-                <button type="button" class="rounded-lg px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-700" @click="eliminar">
+                <button
+                    type="button"
+                    class="rounded-lg px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-700"
+                    @click="eliminar">
                     Eliminar tarea
                 </button>
                 <div class="flex gap-2">

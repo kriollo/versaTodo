@@ -74,7 +74,7 @@
     /** Deja la tarea en la columna, antes de otra tarea o al final, y guarda el orden de esa columna. */
     const mover = async (id: number, columna: Columna, antesDe: number | null) => {
         const tarea = tareas.value.find(t => t.id === id);
-        if (!tarea || id === antesDe) return;
+        if (!tarea || id === antesDe) {return;}
 
         // El orden se calcula con todas las tareas de la columna, no solo las filtradas
         const orden = tareas.value
@@ -87,7 +87,7 @@
         tarea.columna = columna;
         orden.forEach((tid, posicion) => {
             const t = tareas.value.find(x => x.id === tid);
-            if (t) t.posicion = posicion;
+            if (t) {t.posicion = posicion;}
         });
 
         const res = await api('PATCH', `/tareas/${id}/mover`, { columna, orden });
@@ -101,7 +101,7 @@
         const id = arrastrando.value;
         arrastrando.value = null;
         sobre.value = null;
-        if (id !== null) mover(id, columna, antesDe);
+        if (id !== null) {mover(id, columna, antesDe);}
     };
 
     const vecina = (t: Tarea, paso: number): Columna | null => {
@@ -113,25 +113,25 @@
 
     const crearTarea = async (columna: Columna) => {
         const titulo = nuevas[columna].trim();
-        if (titulo === '') return;
+        if (titulo === '') {return;}
         const res = await api('POST', `/tableros/${props.id}/tareas`, { titulo, columna });
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         nuevas[columna] = '';
         await cargar();
     };
 
     const crearEtiqueta = async () => {
         const res = await api('POST', `/tableros/${props.id}/etiquetas`, { ...nuevaEtiqueta });
-        if (!res.success) return showErrorResponse(res);
+        if (!res.success) {return showErrorResponse(res);}
         nuevaEtiqueta.nombre = '';
         await cargar();
     };
 
     const eliminarEtiqueta = async (e: Etiqueta) => {
-        if (!(await confirmar(`¿Eliminar la etiqueta "${e.nombre}"? Se quitará de todas las tareas.`))) return;
+        if (!(await confirmar(`¿Eliminar la etiqueta "${e.nombre}"? Se quitará de todas las tareas.`))) {return;}
         const res = await api('DELETE', `/etiquetas/${e.id}`);
-        if (!res.success) return showErrorResponse(res);
-        if (filtroEtiqueta.value === e.id) filtroEtiqueta.value = '';
+        if (!res.success) {return showErrorResponse(res);}
+        if (filtroEtiqueta.value === e.id) {filtroEtiqueta.value = '';}
         await cargar();
     };
 
