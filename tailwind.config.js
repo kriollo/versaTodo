@@ -3,7 +3,6 @@ import colors from 'tailwindcss/colors.js';
 /** @type {import('tailwindcss').Config} */
 
 export default {
-    mode: 'jit',
     content: [
         './app/**/*.php',
         './app/templates/**/*.twig',
@@ -202,7 +201,6 @@ export default {
             transitionProperty: {
                 width: 'width',
             },
-            textDecoration: ['active'],
             minWidth: {
                 kanban: '28rem',
             },
@@ -220,5 +218,4 @@ export default {
             },
         },
     },
-    plugins: ['prettier-plugin-tailwindcss'],
 };
