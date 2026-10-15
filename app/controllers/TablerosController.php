@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\models\Tableros;
+use app\requests\GuardarEtiqueta;
+use app\requests\GuardarNota;
+use app\requests\GuardarTablero;
+use app\requests\GuardarTarea;
+use app\requests\MoverTarea;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\Tenant;
 
 class TablerosController extends GlobalControllers
 {
@@ -18,7 +24,7 @@ class TablerosController extends GlobalControllers
     {
         global $twig, $session;
         parent::__construct($twig, $session);
-        $this->idEmpresa = (int) ($this->empresaSelected['id'] ?? 0);
+        $this->idEmpresa = Tenant::id();
     }
 
     public function index(): string
@@ -51,24 +57,21 @@ class TablerosController extends GlobalControllers
         ];
     }
 
-    public function crear(): array
+    // Los datos llegan validados: si no, la FormRequest ya respondió 422
+    public function crear(GuardarTablero $datos): array
     {
-        global $request;
-
-        $id = $this->modelo->guardar($this->idEmpresa, $request->getAllParams());
+        $id = $this->modelo->guardar($this->idEmpresa, $datos->validated());
 
         return ['success' => 1, 'message' => 'Tablero creado', 'id' => $id, 'code' => 201];
     }
 
-    public function editar(int $id): array
+    public function editar(GuardarTablero $datos, int $id): array
     {
-        global $request;
-
         if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $this->modelo->guardar($this->idEmpresa, $request->getAllParams(), $id);
+        $this->modelo->guardar($this->idEmpresa, $datos->validated(), $id);
 
         return ['success' => 1, 'message' => 'Tablero actualizado'];
     }
@@ -86,15 +89,13 @@ class TablerosController extends GlobalControllers
 
     // ---------- Tareas ----------
 
-    public function crearTarea(int $id): array
+    public function crearTarea(GuardarTarea $peticion, int $id): array
     {
-        global $request;
-
         if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $datos = $request->getAllParams();
+        $datos = $peticion->validated();
         if (!$this->esMiembro($datos['id_responsable'] ?? null)) {
             return $this->responsableInvalido();
         }
@@ -104,16 +105,14 @@ class TablerosController extends GlobalControllers
         return ['success' => 1, 'message' => 'Tarea creada', 'id' => $idTarea, 'code' => 201];
     }
 
-    public function editarTarea(int $id): array
+    public function editarTarea(GuardarTarea $peticion, int $id): array
     {
-        global $request;
-
         $tarea = $this->modelo->tarea($id, $this->idEmpresa);
         if ($tarea === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $datos = $request->getAllParams();
+        $datos = $peticion->validated();
         if (!$this->esMiembro($datos['id_responsable'] ?? null)) {
             return $this->responsableInvalido();
         }
@@ -123,19 +122,18 @@ class TablerosController extends GlobalControllers
         return ['success' => 1, 'message' => 'Tarea actualizada'];
     }
 
-    public function moverTarea(int $id): array
+    public function moverTarea(MoverTarea $datos, int $id): array
     {
-        global $request;
 
         $tarea = $this->modelo->tarea($id, $this->idEmpresa);
         if ($tarea === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $orden = $request->get('orden');
+        $orden = $datos->input('orden');
         $orden = is_string($orden) ? json_decode($orden, true) : $orden;
 
-        $this->modelo->moverTarea($id, (int) $tarea['id_tablero'], (string) $request->get('columna'), (array) $orden);
+        $this->modelo->moverTarea($id, (int) $tarea['id_tablero'], (string) $datos->input('columna'), (array) $orden);
 
         return ['success' => 1];
     }
@@ -153,20 +151,19 @@ class TablerosController extends GlobalControllers
 
     // ---------- Etiquetas ----------
 
-    public function crearEtiqueta(int $id): array
+    public function crearEtiqueta(GuardarEtiqueta $datos, int $id): array
     {
-        global $request;
 
         if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $nombre = trim((string) $request->get('nombre'));
+        $nombre = trim((string) $datos->input('nombre'));
         if ($this->modelo->existeEtiqueta($id, $nombre)) {
             return ['success' => 0, 'message' => 'Ya existe una etiqueta con ese nombre', 'errors' => ['nombre' => 'Repetida'], 'code' => 422];
         }
 
-        $idEtiqueta = $this->modelo->crearEtiqueta($id, $nombre, (string) ($request->get('color') ?: '#64748b'));
+        $idEtiqueta = $this->modelo->crearEtiqueta($id, $nombre, (string) ($datos->input('color') ?: '#64748b'));
 
         return ['success' => 1, 'message' => 'Etiqueta creada', 'id' => $idEtiqueta, 'code' => 201];
     }
@@ -191,15 +188,14 @@ class TablerosController extends GlobalControllers
         return ['success' => 1, 'data' => $this->modelo->notas($id)];
     }
 
-    public function crearNota(int $id): array
+    public function crearNota(GuardarNota $datos, int $id): array
     {
-        global $request;
 
         if ($this->modelo->tarea($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
-        $idNota = $this->modelo->crearNota($id, $this->id_user, trim((string) $request->get('contenido')));
+        $idNota = $this->modelo->crearNota($id, $this->id_user, trim((string) $datos->input('contenido')));
 
         return ['success' => 1, 'message' => 'Nota agregada', 'id' => $idNota, 'code' => 201];
     }
