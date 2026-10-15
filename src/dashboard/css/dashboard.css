@@ -1,8 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+/*
+  Orden de las capas. 'flowbite' es la de menor prioridad: public/vendor/flowbite/flowbite.min.css pone ahí su
+  base y componentes (en las páginas que lo cargan) y todo lo de este archivo la sobrescribe.
+*/
+@layer properties, flowbite, theme, base, components, utilities;
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap')
+layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@config '../../../tailwind.config.js';
+
+/* Modo oscuro por la clase .dark en <html> (en v3 era darkMode: 'class') */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Clases que se arman en tiempo de ejecución y no aparecen completas en el código (en v3 era safelist) */
+@source inline("w-64 w-1/2 rounded-l-lg rounded-r-lg bg-gray-200 grid-cols-4 grid-cols-7 h-6 leading-6 h-9 leading-9 shadow-lg max-w-{md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}");
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  /* Otros dos cambios de Tailwind 4 que se mantienen como en v3 (guía oficial de actualización) */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 /* Define los colores de fondo base para tus temas claro y oscuro. */
 :root {
@@ -335,14 +376,14 @@ html {
 
 /* Los tooltips se controlan vía JavaScript para evitar conflictos con submenús */
 .w-56 .tooltip-sidebar {
-    @apply !opacity-0 !invisible !pointer-events-none;
+    @apply opacity-0! invisible! pointer-events-none!;
 }
 
 /* --- Textos del Sidebar --- */
 /* Asegurar que los textos se oculten completamente cuando el sidebar está contraído en DESKTOP */
 @media (min-width: 1024px) {
     .w-16 [sidebar-toggle-item] {
-        @apply !hidden;
+        @apply hidden!;
     }
 
     .w-56 [sidebar-toggle-item] {
@@ -353,7 +394,7 @@ html {
 /* En móvil, cuando el sidebar está visible (no .hidden), siempre mostrar textos */
 @media (max-width: 1023px) {
     #sidebar:not(.hidden) [sidebar-toggle-item] {
-        @apply !block;
+        @apply block!;
     }
 }
 
@@ -453,7 +494,7 @@ ul[id^='dropdown-'] {
 /* --- Prioridad de tooltips vs submenús --- */
 /* Cuando un submenú está visible, asegurar que el tooltip esté oculto */
 .sidebar-item:has(ul[id^='dropdown-'][style*='visible']) .tooltip-sidebar {
-    @apply !hidden;
+    @apply hidden!;
 }
 
 /* Los tooltips se manejan vía JavaScript para mejor control */

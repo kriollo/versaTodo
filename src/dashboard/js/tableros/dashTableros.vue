@@ -81,7 +81,7 @@
                         <input v-model="nuevo.nombre" :class="campo" class="block w-64" maxlength="120" required placeholder="Nombre" />
                     </label>
                     <input v-model="nuevo.descripcion" :class="campo" class="w-80" maxlength="500" placeholder="Descripción (opcional)" aria-label="Descripción" />
-                    <input v-model="nuevo.color" type="color" class="h-10 w-12 rounded" aria-label="Color" />
+                    <input v-model="nuevo.color" type="color" class="h-10 w-12 rounded-sm" aria-label="Color" />
                     <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm text-white hover:bg-blue-800">Crear</button>
                 </form>
 
@@ -94,7 +94,7 @@
                     <li
                         v-for="t in tableros"
                         :key="t.id"
-                        class="flex flex-col rounded-xl border-t-4 bg-white p-4 shadow-sm dark:bg-gray-800"
+                        class="flex flex-col rounded-xl border-t-4 bg-white p-4 shadow-xs dark:bg-gray-800"
                         :style="{ borderTopColor: t.color }">
                         <button type="button" class="text-start" @click="abierto = t.id">
                             <h3 class="text-lg font-semibold text-gray-900 hover:underline dark:text-white">{{ t.nombre }}</h3>

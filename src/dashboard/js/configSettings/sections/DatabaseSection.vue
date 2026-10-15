@@ -88,7 +88,7 @@
             <button
                 type="button"
                 :disabled="exporting"
-                class="text-white bg-brand hover:bg-brand/90 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 disabled:opacity-50"
+                class="text-white bg-brand hover:bg-brand/90 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 disabled:opacity-50"
                 @click="handleExport">
                 <div
                     v-if="exporting"
@@ -110,12 +110,12 @@
                 ref="fileInput"
                 type="file"
                 accept=".sql"
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-hidden dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                 @change="onFileChange" />
             <button
                 type="button"
                 :disabled="!selectedFile || importing"
-                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 disabled:opacity-50 dark:focus:ring-red-800"
+                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-hidden focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 disabled:opacity-50 dark:focus:ring-red-800"
                 @click="handleImport">
                 <div
                     v-if="importing"

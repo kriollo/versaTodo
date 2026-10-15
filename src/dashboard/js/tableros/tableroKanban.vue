@@ -181,7 +181,7 @@
             </div>
             <form class="flex flex-wrap gap-2" @submit.prevent="crearEtiqueta">
                 <input v-model="nuevaEtiqueta.nombre" :class="campo" placeholder="Nueva etiqueta" maxlength="40" required />
-                <input v-model="nuevaEtiqueta.color" type="color" class="h-10 w-12 rounded" aria-label="Color" />
+                <input v-model="nuevaEtiqueta.color" type="color" class="h-10 w-12 rounded-sm" aria-label="Color" />
                 <button type="submit" class="rounded-lg bg-blue-700 px-4 text-sm text-white hover:bg-blue-800">Agregar</button>
             </form>
         </section>
@@ -207,7 +207,7 @@
                         v-for="t in deColumna(col.id)"
                         :key="t.id"
                         draggable="true"
-                        class="group cursor-grab rounded-lg border border-gray-200 bg-white p-3 shadow-sm hover:shadow dark:border-gray-700 dark:bg-gray-900"
+                        class="group cursor-grab rounded-lg border border-gray-200 bg-white p-3 shadow-xs hover:shadow-sm dark:border-gray-700 dark:bg-gray-900"
                         :class="{ 'opacity-40': arrastrando === t.id }"
                         @dragstart="arrastrando = t.id"
                         @dragend="arrastrando = null"
@@ -216,7 +216,7 @@
                             <template v-for="idE in t.etiquetas" :key="idE">
                                 <span
                                     v-if="etiqueta(idE)"
-                                    class="rounded px-2 text-[11px] font-medium text-white"
+                                    class="rounded-sm px-2 text-[11px] font-medium text-white"
                                     :style="{ backgroundColor: etiqueta(idE)!.color }">
                                     {{ etiqueta(idE)!.nombre }}
                                 </span>
@@ -230,7 +230,7 @@
                             {{ t.titulo }}
                         </button>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                            <span class="rounded px-1.5 py-0.5" :class="PRIORIDADES[t.prioridad].clase">
+                            <span class="rounded-sm px-1.5 py-0.5" :class="PRIORIDADES[t.prioridad].clase">
                                 {{ PRIORIDADES[t.prioridad].titulo }}
                             </span>
                             <span

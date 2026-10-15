@@ -66,14 +66,14 @@ export const api = (
         ...(data ? { data, headers: { 'Content-Type': 'application/json' } } : {}),
     });
 
-export const confirmar = async (titulo: string): Promise<boolean> =>
-    (
-        await Swal.fire({
-            title: titulo,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Eliminar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#dc2626',
-        })
-    ).isConfirmed;
+export const confirmar = async (titulo: string): Promise<boolean> => {
+    const respuesta = await Swal.fire({
+        title: titulo,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc2626',
+    });
+    return respuesta.isConfirmed;
+};
