@@ -6,17 +6,17 @@ namespace app\commands;
 
 use app\controllers\InstallController;
 use app\middleware\InstallMiddleware;
-use versaWYS\kernel\cli\BaseCommand;
 use versaWYS\kernel\cli\CLIErrorHandler;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\cli\ConfigManager;
+use versaWYS\kernel\Installation;
 
 /**
  * `php versaCLI app:install`: el mismo instalador que /install, desde la terminal. Pregunta lo que
  * falte o lo toma de las opciones (--db-host=...), para servidores sin navegador. No pide el token
  * de /install: quien tiene la terminal ya tiene acceso al servidor.
  */
-class InstallCommand extends BaseCommand
+class InstallCommand extends ConsoleCommand
 {
     /** @var array<string, array{0: string, 1: string}> parámetro => [pregunta, valor por defecto] */
     private const array FIELDS = [
@@ -52,21 +52,35 @@ class InstallCommand extends BaseCommand
         // El instalador usa la configuración completa, como en una petición web
         $config = array_replace_recursive(ConfigManager::defaults(), ConfigManager::getConfig());
 
-        $values = $this->options([...$params, ...($_SERVER['argv'] ?? [])]);
+        // Los mismos requisitos que el asistente web (y que muestra versaCLI status)
+        $failing = array_filter(Installation::requirements(), static fn(array $c): bool => !$c['ok']);
+        if ($failing !== []) {
+            CLIErrorHandler::error('El servidor no cumple los requisitos para instalar:');
+            foreach ($failing as $check) {
+                echo "  ✗ {$check['label']}\n    → {$check['fix']}\n";
+            }
+
+            return 1;
+        }
+
+        $values = $this->fieldOptions([...$params, ...($_SERVER['argv'] ?? [])]);
         foreach (self::FIELDS as $field => [$question, $default]) {
-            if (isset($values[$field])) {
+            if (($values[$field] ?? null) !== null) {
                 continue;
             }
             if ($field === 'db_port') {
                 $default = ($values['db_driver'] ?? '') === 'postgresql' ? '5432' : '3306';
             }
-            $values[$field] = in_array($field, self::SECRETS, true) ? $this->askSecret($question) : CLIHelper::ask($question, $default);
+            $values[$field] = in_array($field, self::SECRETS, true)
+                ? $this->askSecret($question)
+                : CLIHelper::ask($question, $default);
             if ($values[$field] === '') {
                 $values[$field] = $default;
             }
         }
         // Por opciones no se repite la contraseña; en modo interactivo se pide de nuevo
-        $values['admin_password_confirm'] ??= isset($this->options($_SERVER['argv'] ?? [])['admin_password'])
+        $values['admin_password_confirm'] ??= ($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'] ?? null)
+        !== null
             ? $values['admin_password']
             : $this->askSecret('Repite la contraseña del superadministrador');
 
@@ -102,35 +116,21 @@ class InstallCommand extends BaseCommand
      *
      * @return array<string, string>
      */
-    private function options(array $args): array
+    private function fieldOptions(array $args): array
     {
         $values = [];
         foreach ($args as $arg) {
-            if (is_string($arg) && preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) === 1) {
-                $key = str_replace('-', '_', $m[1]);
-                if (array_key_exists($key, self::FIELDS)) {
-                    $values[$key] = $m[2];
-                }
+            if (!is_string($arg) || preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) !== 1) {
+                continue;
+            }
+
+            $key = str_replace('-', '_', $m[1]);
+            if (array_key_exists($key, self::FIELDS)) {
+                $values[$key] = $m[2];
             }
         }
 
         return $values;
-    }
-
-    private function askSecret(string $question): string
-    {
-        echo CLIErrorHandler::colorize($question, 'green') . ': ';
-        $tty = function_exists('posix_isatty') && posix_isatty(STDIN);
-        if ($tty) {
-            shell_exec('stty -echo');
-        }
-        $value = trim((string) fgets(STDIN));
-        if ($tty) {
-            shell_exec('stty echo');
-            echo "\n";
-        }
-
-        return $value;
     }
 
     #[\Override]
@@ -142,10 +142,15 @@ class InstallCommand extends BaseCommand
     #[\Override]
     public function getHelp(): string
     {
-        $options = implode(' ', array_map(static fn (string $f): string => '--' . str_replace('_', '-', $f) . '=...', array_keys(self::FIELDS)));
+        $options = implode(' ', array_map(
+            static fn(string $f): string => '--' . str_replace('_', '-', $f) . '=...',
+            array_keys(self::FIELDS),
+        ));
 
-        return "Uso: php versaCLI app:install [opciones]\n\n"
+        return (
+            "Uso: php versaCLI app:install [opciones]\n\n"
             . "Sin opciones pregunta cada dato. Para servidores sin navegador o scripts:\n  {$options}\n\n"
-            . "La base de datos debe existir y estar vacía. Si la aplicación ya está instalada (installed.lock), no hace nada.\n";
+            . "La base de datos debe existir y estar vacía. Si la aplicación ya está instalada (installed.lock), no hace nada.\n"
+        );
     }
 }

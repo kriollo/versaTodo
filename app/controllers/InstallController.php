@@ -11,6 +11,7 @@ use Throwable;
 use VersaORM\VersaORM;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Installation;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\model\OrmFactory;
 use versaWYS\kernel\model\VersaORMModel;
@@ -26,7 +27,13 @@ class InstallController
     {
         global $twig;
 
-        return $twig->render('install/install');
+        $requirements = Installation::requirements();
+
+        return $twig->render('install/install', [
+            'requirements' => $requirements,
+            'requirements_ok' => array_filter($requirements, static fn(array $c): bool => !$c['ok']) === [],
+            'token_path' => Installation::tokenFile(),
+        ]);
     }
 
     public function run(): array
@@ -35,7 +42,8 @@ class InstallController
 
         // La contraseña de la BD llega sin sanear: debe ser exacta (la del admin sí pasa por
         // getAllParams, igual que en el login, para que ambos hashes coincidan)
-        return $this->install(['db_pass' => (string) ($request->getRawParams()['db_pass'] ?? '')] + $request->getAllParams());
+        return $this->install(['db_pass' => (string) ($request->getRawParams()['db_pass'] ?? '')]
+        + $request->getAllParams());
     }
 
     /**
@@ -52,14 +60,15 @@ class InstallController
         global $config;
 
         $newConfig = ConfigManager::getConfig();
-        $newConfig['database'] = [
-            'driver' => $params['db_driver'],
-            'host' => $params['db_host'],
-            'port' => (int) $params['db_port'],
-            'database' => $params['db_name'],
-            'username' => $params['db_user'],
-            'password' => (string) ($params['db_pass'] ?? ''),
-        ] + ($newConfig['database'] ?? []);
+        $newConfig['database'] =
+            [
+                'driver' => $params['db_driver'],
+                'host' => $params['db_host'],
+                'port' => (int) $params['db_port'],
+                'database' => $params['db_name'],
+                'username' => $params['db_user'],
+                'password' => Functions::text($params['db_pass'] ?? null),
+            ] + ($newConfig['database'] ?? []);
 
         try {
             $orm = OrmFactory::make(array_replace_recursive($config, $newConfig));
@@ -84,7 +93,9 @@ class InstallController
             $log[] = $this->runMigrations($orm);
 
             if ($orm->table('versa_users')->count() > 0) {
-                throw new RuntimeException('La base de datos ya contiene usuarios: la instalación no se ejecuta sobre un sitio en uso.');
+                throw new RuntimeException(
+                    'La base de datos ya contiene usuarios: la instalación no se ejecuta sobre un sitio en uso.',
+                );
             }
 
             // Si un intento anterior falló a medias los datos base ya existen: no duplicarlos
@@ -125,7 +136,8 @@ class InstallController
             ? array_column($orm->exec('SELECT name FROM versa_migrations'), 'name')
             : [];
 
-        $files = glob('app/migrations/*.php') ?: [];
+        $files = glob('app/migrations/*.php');
+        $files = $files === false ? [] : $files;
         sort($files);
         $count = 0;
 
@@ -149,7 +161,8 @@ class InstallController
 
     private function runSeeders(): string
     {
-        $files = glob('app/seeders/*.php') ?: [];
+        $files = glob('app/seeders/*.php');
+        $files = $files === false ? [] : $files;
         sort($files, SORT_NATURAL);
 
         foreach ($files as $file) {
@@ -171,12 +184,15 @@ class InstallController
     {
         global $config;
 
-        $orm->table('empresas')->where('id', '=', 1)->update([
-            'nombre' => $params['empresa_nombre'],
-            'rut' => $params['empresa_rut'],
-            'email' => $params['admin_email'],
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        $orm
+            ->table('empresas')
+            ->where('id', '=', 1)
+            ->update([
+                'nombre' => $params['empresa_nombre'],
+                'rut' => $params['empresa_rut'],
+                'email' => $params['admin_email'],
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
 
         $days = $config['auth']['expiration_days_password'] ?? 90;
         $id = (new Users())->createUser([

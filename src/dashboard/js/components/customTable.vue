@@ -634,7 +634,7 @@
                     return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
                 }
             }
-            return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+            return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
         }
         if (
             itemSelected.value?.fieldCompare !== undefined &&
@@ -643,7 +643,7 @@
             // Update for new design: selected row style
             return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
         }
-        return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+        return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
     };
 
     //Funcion para convertir fecha
@@ -689,7 +689,7 @@
 
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-[#0a0a0a] p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
+            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-gray-950 p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
             <div class="flex items-center gap-4">
                 <!-- Dropdown por Pagina -->
                 <dropDown
@@ -716,7 +716,7 @@
                     class="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all border"
                     :class="
                         shouldUseResponsiveMode
-                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-[#0a0a0a] dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
+                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
                             : 'bg-brand text-white border-brand shadow-lg shadow-brand/20'
                     "
                     :title="
@@ -779,13 +779,13 @@
 
         <!-- Table Container -->
         <div
-            class="relative overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-[#0a0a0a] w-full">
+            class="relative overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
             <table
                 :id="'table_' + idTable"
                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                 <caption
                     v-if="tablaTitle !== ''"
-                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">
+                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
                     <div class="flex justify-between items-center w-full">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-6 bg-brand rounded-full"></div>
@@ -1401,7 +1401,7 @@
         <!-- Pagination -->
         <nav class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
             <div
-                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-[#0a0a0a] px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
+                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-950 px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
                 <span>Mostrando</span>
                 <span class="font-bold text-gray-900 dark:text-white">{{ data.meta.from || 0 }}</span>
                 <span>al</span>
@@ -1412,7 +1412,7 @@
             </div>
 
             <ul
-                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
+                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-gray-950 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
                 <template v-if="Array.isArray(getLimitPages)">
                     <li>
                         <a
