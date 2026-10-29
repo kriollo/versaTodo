@@ -58,8 +58,8 @@ importers:
         specifier: 4.3.3
         version: 4.3.3
       versacompiler:
-        specifier: 2.7.8
-        version: 2.7.8
+        specifier: 2.7.9
+        version: 2.7.9
 
 packages:
 
@@ -1942,8 +1942,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  versacompiler@2.7.8:
-    resolution: {integrity: sha512-UxBOMEwoYoPyFSfDCV5XfkloEA5iMRooFcT5YF2c7vMTFLfmVfmRZKFvxIPmk2BVXuQnxdUp+b/5uuA/Db6I7g==}
+  versacompiler@2.7.9:
+    resolution: {integrity: sha512-CLMAZoRGUhL8wdq0XxdEediza06XSj/iNoVx2kJ0ZYHpiL+bIJjZzepw/Y2C+teF906f97dAji98NYhHCSRh0g==}
     hasBin: true
 
   vue@3.5.44:
@@ -3605,7 +3605,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  versacompiler@2.7.8:
+  versacompiler@2.7.9:
     dependencies:
       '@vue/compiler-dom': 3.5.44
       '@vue/reactivity': 3.5.44
