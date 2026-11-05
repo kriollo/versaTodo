@@ -8,23 +8,32 @@ on:
 jobs:
     php:
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                # El lock se resuelve para PHP 8.3 (config.platform): debe instalar en todas las soportadas
-                php: ['8.3', '8.4']
+        # PostgreSQL desechable para las pruebas: el motor de producción
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_PASSWORD: prueba-local
+                    POSTGRES_DB: panel
+                ports: ['55433:5432']
+                options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
+        env:
+            VERSA_TEST_DB: 127.0.0.1:55433:panel:postgres:prueba-local
         steps:
             - uses: actions/checkout@v7
             - uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ matrix.php }}
-                  extensions: intl, mbstring, pdo_mysql, pdo_pgsql, pdo_sqlite, curl, fileinfo, zip
+                  php-version: '8.4'
+                  extensions: intl, mbstring, pdo_mysql, pdo_pgsql, pdo_sqlite, curl, fileinfo, zip, gd
                   coverage: none
             # Desde composer.lock: lo mismo que se despliega
             - run: composer install --no-interaction --no-progress
             - run: composer audit
-            # pint (formato) y pest (tests); el análisis estático del kernel corre en versawys-kernel
+            - run: php versaCLI config:init < /dev/null
+            # mago fmt (formato) y pest (pruebas)
             - run: composer check
+            # Lo que una versión nueva de versawys/kernel puede romper: clases, rutas, plantillas y el contrato kernel ↔ app
+            - run: php versaCLI app:check:deploy
 
     frontend:
         runs-on: ubuntu-latest
