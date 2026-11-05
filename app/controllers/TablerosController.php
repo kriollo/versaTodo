@@ -17,11 +17,12 @@ class TablerosController extends GlobalControllers
 {
     private const array NO_ENCONTRADO = ['success' => 0, 'message' => 'No encontrado', 'code' => 404];
 
-    private int $idEmpresa;
+    private readonly int $idEmpresa;
 
     // El contenedor crea el modelo; en una prueba se puede reemplazar por otro
-    public function __construct(private readonly Tableros $modelo)
-    {
+    public function __construct(
+        private readonly Tableros $modelo,
+    ) {
         global $twig, $session;
         parent::__construct($twig, $session);
         $this->idEmpresa = Tenant::id();
@@ -124,7 +125,6 @@ class TablerosController extends GlobalControllers
 
     public function moverTarea(MoverTarea $datos, int $id): array
     {
-
         $tarea = $this->modelo->tarea($id, $this->idEmpresa);
         if ($tarea === null) {
             return self::NO_ENCONTRADO;
@@ -153,14 +153,18 @@ class TablerosController extends GlobalControllers
 
     public function crearEtiqueta(GuardarEtiqueta $datos, int $id): array
     {
-
         if ($this->modelo->buscar($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
 
         $nombre = trim((string) $datos->input('nombre'));
         if ($this->modelo->existeEtiqueta($id, $nombre)) {
-            return ['success' => 0, 'message' => 'Ya existe una etiqueta con ese nombre', 'errors' => ['nombre' => 'Repetida'], 'code' => 422];
+            return [
+                'success' => 0,
+                'message' => 'Ya existe una etiqueta con ese nombre',
+                'errors' => ['nombre' => 'Repetida'],
+                'code' => 422,
+            ];
         }
 
         $idEtiqueta = $this->modelo->crearEtiqueta($id, $nombre, (string) ($datos->input('color') ?: '#64748b'));
@@ -190,7 +194,6 @@ class TablerosController extends GlobalControllers
 
     public function crearNota(GuardarNota $datos, int $id): array
     {
-
         if ($this->modelo->tarea($id, $this->idEmpresa) === null) {
             return self::NO_ENCONTRADO;
         }
@@ -215,11 +218,20 @@ class TablerosController extends GlobalControllers
             return true;
         }
 
-        return in_array($idUsuario, array_map(intval(...), array_column($this->modelo->miembros($this->idEmpresa), 'id')), true);
+        return in_array(
+            $idUsuario,
+            array_map(intval(...), array_column($this->modelo->miembros($this->idEmpresa), 'id')),
+            true,
+        );
     }
 
     private function responsableInvalido(): array
     {
-        return ['success' => 0, 'message' => 'El responsable no es de la empresa', 'errors' => ['id_responsable' => 'No válido'], 'code' => 422];
+        return [
+            'success' => 0,
+            'message' => 'El responsable no es de la empresa',
+            'errors' => ['id_responsable' => 'No válido'],
+            'code' => 422,
+        ];
     }
 }

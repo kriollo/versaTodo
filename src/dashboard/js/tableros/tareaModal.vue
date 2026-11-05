@@ -32,7 +32,9 @@
 
     const cargarNotas = async () => {
         const res = await api('GET', `/tareas/${props.tarea.id}/notas`);
-        if (res.success) {notas.value = res.data;}
+        if (res.success) {
+            notas.value = res.data;
+        }
     };
     onMounted(cargarNotas);
 
@@ -40,24 +42,34 @@
         guardando.value = true;
         const res = await api('PUT', `/tareas/${props.tarea.id}`, { ...form });
         guardando.value = false;
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         VersaToast.fire({ icon: 'success', title: 'Tarea guardada' });
         emit('cambio');
         emit('cerrar');
     };
 
     const eliminar = async () => {
-        if (!(await confirmar(`¿Eliminar la tarea "${props.tarea.titulo}"?`))) {return;}
+        if (!(await confirmar(`¿Eliminar la tarea "${props.tarea.titulo}"?`))) {
+            return;
+        }
         const res = await api('DELETE', `/tareas/${props.tarea.id}`);
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         emit('cambio');
         emit('cerrar');
     };
 
     const agregarNota = async () => {
-        if (nuevaNota.value.trim() === '') {return;}
+        if (nuevaNota.value.trim() === '') {
+            return;
+        }
         const res = await api('POST', `/tareas/${props.tarea.id}/notas`, { contenido: nuevaNota.value });
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         nuevaNota.value = '';
         await cargarNotas();
         emit('cambio');
@@ -65,19 +77,26 @@
 
     const eliminarNota = async (nota: Nota) => {
         const res = await api('DELETE', `/notas/${nota.id}`);
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         await cargarNotas();
         emit('cambio');
     };
 
     const alternarEtiqueta = (id: number) => {
         const i = form.etiquetas.indexOf(id);
-        if (i === -1) {form.etiquetas.push(id);}
-        else {form.etiquetas.splice(i, 1);}
+        if (i === -1) {
+            form.etiquetas.push(id);
+        } else {
+            form.etiquetas.splice(i, 1);
+        }
     };
 
     const accion = (e: { accion: string }) => {
-        if (e.accion === 'closeModal') {emit('cerrar');}
+        if (e.accion === 'closeModal') {
+            emit('cerrar');
+        }
     };
 
     const campo =

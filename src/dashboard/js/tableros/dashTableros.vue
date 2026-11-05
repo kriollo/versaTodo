@@ -32,24 +32,35 @@
     const abierto = ref<number | null>(Number(new URLSearchParams(location.search).get('t')) || null);
     watch(abierto, id => {
         const url = new URL(location.href);
-        if (id) {url.searchParams.set('t', String(id));}
-        else {url.searchParams.delete('t');}
+        if (id) {
+            url.searchParams.set('t', String(id));
+        } else {
+            url.searchParams.delete('t');
+        }
         history.replaceState(history.state, '', url);
-        if (!id) {cargar();}
+        if (!id) {
+            cargar();
+        }
     });
 
     const cargar = async () => {
         const res = await api('GET', '/tableros');
         cargando.value = false;
-        if (res.success) {tableros.value = res.data;}
+        if (res.success) {
+            tableros.value = res.data;
+        }
     };
     onMounted(() => {
-        if (!abierto.value) {cargar();}
+        if (!abierto.value) {
+            cargar();
+        }
     });
 
     const crear = async () => {
         const res = await api('POST', '/tableros', { ...nuevo });
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         VersaToast.fire({ icon: 'success', title: 'Tablero creado' });
         nuevo.nombre = '';
         nuevo.descripcion = '';
@@ -57,9 +68,13 @@
     };
 
     const eliminar = async (t: Tablero) => {
-        if (!(await confirmar(`¿Eliminar "${t.nombre}" y sus ${t.total} tareas?`))) {return;}
+        if (!(await confirmar(`¿Eliminar "${t.nombre}" y sus ${t.total} tareas?`))) {
+            return;
+        }
         const res = await api('DELETE', `/tableros/${t.id}`);
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         await cargar();
     };
 
@@ -78,11 +93,25 @@
                     @submit.prevent="crear">
                     <label class="text-sm font-medium text-gray-900 dark:text-white">
                         Nuevo tablero
-                        <input v-model="nuevo.nombre" :class="campo" class="block w-64" maxlength="120" required placeholder="Nombre" />
+                        <input
+                            v-model="nuevo.nombre"
+                            :class="campo"
+                            class="block w-64"
+                            maxlength="120"
+                            required
+                            placeholder="Nombre" />
                     </label>
-                    <input v-model="nuevo.descripcion" :class="campo" class="w-80" maxlength="500" placeholder="Descripción (opcional)" aria-label="Descripción" />
+                    <input
+                        v-model="nuevo.descripcion"
+                        :class="campo"
+                        class="w-80"
+                        maxlength="500"
+                        placeholder="Descripción (opcional)"
+                        aria-label="Descripción" />
                     <input v-model="nuevo.color" type="color" class="h-10 w-12 rounded-sm" aria-label="Color" />
-                    <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm text-white hover:bg-blue-800">Crear</button>
+                    <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm text-white hover:bg-blue-800">
+                        Crear
+                    </button>
                 </form>
 
                 <p v-if="cargando" class="text-gray-500">Cargando…</p>
@@ -97,19 +126,30 @@
                         class="flex flex-col rounded-xl border-t-4 bg-white p-4 shadow-xs dark:bg-gray-800"
                         :style="{ borderTopColor: t.color }">
                         <button type="button" class="text-start" @click="abierto = t.id">
-                            <h3 class="text-lg font-semibold text-gray-900 hover:underline dark:text-white">{{ t.nombre }}</h3>
-                            <p v-if="t.descripcion" class="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{{ t.descripcion }}</p>
+                            <h3 class="text-lg font-semibold text-gray-900 hover:underline dark:text-white">
+                                {{ t.nombre }}
+                            </h3>
+                            <p v-if="t.descripcion" class="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
+                                {{ t.descripcion }}
+                            </p>
                         </button>
                         <div class="mt-4">
                             <div class="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                                 <div
                                     class="h-full rounded-full"
-                                    :style="{ width: (t.total ? (t.hechas / t.total) * 100 : 0) + '%', backgroundColor: t.color }"></div>
+                                    :style="{
+                                        width: (t.total ? (t.hechas / t.total) * 100 : 0) + '%',
+                                        backgroundColor: t.color,
+                                    }"></div>
                             </div>
                             <div class="mt-2 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                                 <span>{{ t.hechas }}/{{ t.total }} hechas</span>
-                                <span v-if="t.vencidas > 0" class="font-semibold text-red-600">⚠ {{ t.vencidas }} vencidas</span>
-                                <button type="button" class="ms-auto text-red-600 hover:underline" @click="eliminar(t)">Eliminar</button>
+                                <span v-if="t.vencidas > 0" class="font-semibold text-red-600">
+                                    ⚠ {{ t.vencidas }} vencidas
+                                </span>
+                                <button type="button" class="ms-auto text-red-600 hover:underline" @click="eliminar(t)">
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
                     </li>

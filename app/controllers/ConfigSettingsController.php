@@ -11,6 +11,7 @@ use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\Schedule;
+use versaWYS\kernel\ScheduledTask;
 
 class ConfigSettingsController extends GlobalControllers
 {
@@ -142,6 +143,7 @@ class ConfigSettingsController extends GlobalControllers
                 ],
             );
         }
+
         $config['build']['debug'] = $debug;
 
         $config['admin']['custom_url'] = (string) $params['admin']['custom_url'];
@@ -164,9 +166,15 @@ class ConfigSettingsController extends GlobalControllers
             '<p>La configuración de correo saliente funciona correctamente.</p>',
         );
 
-        return $sent
-            ? ['success' => 1, 'message' => 'Correo de prueba enviado a ' . $this->user['email']]
-            : ['success' => 0, 'message' => 'No se pudo enviar el correo de prueba. Revise el log de correo.', 'code' => 502];
+        return (
+            $sent
+                ? ['success' => 1, 'message' => 'Correo de prueba enviado a ' . $this->user['email']]
+                : [
+                    'success' => 0,
+                    'message' => 'No se pudo enviar el correo de prueba. Revise el log de correo.',
+                    'code' => 502,
+                ]
+        );
     }
 
     /**
@@ -186,7 +194,7 @@ class ConfigSettingsController extends GlobalControllers
         global $request;
 
         $task = Schedule::load()->find($request->string('id'));
-        if ($task === null) {
+        if (!$task instanceof ScheduledTask) {
             return ['success' => 0, 'message' => 'La tarea no existe.', 'code' => 404];
         }
 

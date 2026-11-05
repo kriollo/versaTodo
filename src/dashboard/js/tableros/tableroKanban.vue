@@ -74,7 +74,9 @@
     /** Deja la tarea en la columna, antes de otra tarea o al final, y guarda el orden de esa columna. */
     const mover = async (id: number, columna: Columna, antesDe: number | null) => {
         const tarea = tareas.value.find(t => t.id === id);
-        if (!tarea || id === antesDe) {return;}
+        if (!tarea || id === antesDe) {
+            return;
+        }
 
         // El orden se calcula con todas las tareas de la columna, no solo las filtradas
         const orden = tareas.value
@@ -87,7 +89,9 @@
         tarea.columna = columna;
         orden.forEach((tid, posicion) => {
             const t = tareas.value.find(x => x.id === tid);
-            if (t) {t.posicion = posicion;}
+            if (t) {
+                t.posicion = posicion;
+            }
         });
 
         const res = await api('PATCH', `/tareas/${id}/mover`, { columna, orden });
@@ -101,7 +105,9 @@
         const id = arrastrando.value;
         arrastrando.value = null;
         sobre.value = null;
-        if (id !== null) {mover(id, columna, antesDe);}
+        if (id !== null) {
+            mover(id, columna, antesDe);
+        }
     };
 
     const vecina = (t: Tarea, paso: number): Columna | null => {
@@ -113,25 +119,37 @@
 
     const crearTarea = async (columna: Columna) => {
         const titulo = nuevas[columna].trim();
-        if (titulo === '') {return;}
+        if (titulo === '') {
+            return;
+        }
         const res = await api('POST', `/tableros/${props.id}/tareas`, { titulo, columna });
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         nuevas[columna] = '';
         await cargar();
     };
 
     const crearEtiqueta = async () => {
         const res = await api('POST', `/tableros/${props.id}/etiquetas`, { ...nuevaEtiqueta });
-        if (!res.success) {return showErrorResponse(res);}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
         nuevaEtiqueta.nombre = '';
         await cargar();
     };
 
     const eliminarEtiqueta = async (e: Etiqueta) => {
-        if (!(await confirmar(`¿Eliminar la etiqueta "${e.nombre}"? Se quitará de todas las tareas.`))) {return;}
+        if (!(await confirmar(`¿Eliminar la etiqueta "${e.nombre}"? Se quitará de todas las tareas.`))) {
+            return;
+        }
         const res = await api('DELETE', `/etiquetas/${e.id}`);
-        if (!res.success) {return showErrorResponse(res);}
-        if (filtroEtiqueta.value === e.id) {filtroEtiqueta.value = '';}
+        if (!res.success) {
+            return showErrorResponse(res);
+        }
+        if (filtroEtiqueta.value === e.id) {
+            filtroEtiqueta.value = '';
+        }
         await cargar();
     };
 
@@ -152,7 +170,12 @@
                 {{ tablero.nombre }}
             </h2>
             <div class="ms-auto flex flex-wrap gap-2">
-                <input v-model="busqueda" type="search" :class="campo" placeholder="Buscar tarea…" aria-label="Buscar tarea" />
+                <input
+                    v-model="busqueda"
+                    type="search"
+                    :class="campo"
+                    placeholder="Buscar tarea…"
+                    aria-label="Buscar tarea" />
                 <select v-model="filtroEtiqueta" :class="campo" aria-label="Filtrar por etiqueta">
                     <option value="">Todas las etiquetas</option>
                     <option v-for="e in etiquetas" :key="e.id" :value="e.id">{{ e.nombre }}</option>
@@ -167,7 +190,9 @@
             </div>
         </header>
 
-        <section v-if="verEtiquetas" class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <section
+            v-if="verEtiquetas"
+            class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
             <div class="mb-3 flex flex-wrap gap-2">
                 <span
                     v-for="e in etiquetas"
@@ -175,14 +200,27 @@
                     class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium text-white"
                     :style="{ backgroundColor: e.color }">
                     {{ e.nombre }}
-                    <button type="button" class="ms-1 font-bold" :aria-label="`Eliminar ${e.nombre}`" @click="eliminarEtiqueta(e)">×</button>
+                    <button
+                        type="button"
+                        class="ms-1 font-bold"
+                        :aria-label="`Eliminar ${e.nombre}`"
+                        @click="eliminarEtiqueta(e)">
+                        ×
+                    </button>
                 </span>
                 <span v-if="etiquetas.length === 0" class="text-sm text-gray-500">Sin etiquetas todavía.</span>
             </div>
             <form class="flex flex-wrap gap-2" @submit.prevent="crearEtiqueta">
-                <input v-model="nuevaEtiqueta.nombre" :class="campo" placeholder="Nueva etiqueta" maxlength="40" required />
+                <input
+                    v-model="nuevaEtiqueta.nombre"
+                    :class="campo"
+                    placeholder="Nueva etiqueta"
+                    maxlength="40"
+                    required />
                 <input v-model="nuevaEtiqueta.color" type="color" class="h-10 w-12 rounded-sm" aria-label="Color" />
-                <button type="submit" class="rounded-lg bg-blue-700 px-4 text-sm text-white hover:bg-blue-800">Agregar</button>
+                <button type="submit" class="rounded-lg bg-blue-700 px-4 text-sm text-white hover:bg-blue-800">
+                    Agregar
+                </button>
             </form>
         </section>
 
@@ -197,9 +235,12 @@
                 @dragover.prevent="sobre = col.id"
                 @dragleave.self="sobre = null"
                 @drop.prevent="soltar(col.id, null)">
-                <h3 class="mb-3 flex items-center justify-between text-sm font-semibold uppercase text-gray-600 dark:text-gray-300">
+                <h3
+                    class="mb-3 flex items-center justify-between text-sm font-semibold uppercase text-gray-600 dark:text-gray-300">
                     {{ col.titulo }}
-                    <span class="rounded-full bg-gray-200 px-2 text-xs dark:bg-gray-700">{{ deColumna(col.id).length }}</span>
+                    <span class="rounded-full bg-gray-200 px-2 text-xs dark:bg-gray-700">
+                        {{ deColumna(col.id).length }}
+                    </span>
                 </h3>
 
                 <ul class="flex flex-1 flex-col gap-2">
@@ -239,7 +280,10 @@
                                 :title="vencida(t) ? 'Vencida' : 'Vence'">
                                 {{ vencida(t) ? '⚠ ' : '' }}{{ t.fecha_vence }}
                             </span>
-                            <span v-if="t.notas > 0" class="text-gray-500 dark:text-gray-400" :title="`${t.notas} notas`">
+                            <span
+                                v-if="t.notas > 0"
+                                class="text-gray-500 dark:text-gray-400"
+                                :title="`${t.notas} notas`">
                                 💬 {{ t.notas }}
                             </span>
                             <span
