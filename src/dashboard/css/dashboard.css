@@ -527,6 +527,12 @@ html {
         @apply hidden!;
     }
 
+    /* Contraído, el hover no desplaza el ítem: el ml-4 empuja la flecha del submenú
+       fuera del ancho visible (w-16) y queda recortada */
+    .w-16 [class*='hover:ml-4']:hover {
+        margin-left: 0;
+    }
+
     .w-56 [sidebar-toggle-item] {
         @apply lg:block;
     }
@@ -642,4 +648,17 @@ ul[id^='dropdown-'] {
 .sidebar-item:hover .tooltip-sidebar {
     /* El hover no activa tooltips automáticamente, se controla vía JS */
     transition: none;
+}
+
+/* --- Scroll del sidebar sin barra visible --- */
+/* El sidebar puede scrollear para llegar a todas las opciones, pero sin la barra gris a la vista. */
+.sidebar-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Edge/IE */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
