@@ -25,7 +25,7 @@
     },
     "devDependencies": {
         "@prettier/plugin-php": "^0.26.0",
-        "@tailwindcss/cli": "4.3.3",
+        "@tailwindcss/cli": "4.3.4",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@types/node": "^26.6.6",
         "@vue/compiler-dom": "^3.5.44",
@@ -37,7 +37,7 @@
         "globals": "^17.14.0",
         "oxlint": "1.90.0",
         "prettier": "3.9.10",
-        "tailwindcss": "4.3.3",
+        "tailwindcss": "4.3.4",
         "versacompiler": "2.7.9"
     }
 }
